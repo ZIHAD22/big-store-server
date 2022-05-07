@@ -42,6 +42,27 @@ const bigStoreServer = async () => {
 
       res.send(product)
     })
+
+    // update quantity of product
+    app.put('/inventory/:id', async (req, res) => {
+      const id = ObjectId(req.params.id)
+      const updatedQuantity = parseInt(req.body.quantity) - 1
+      const filter = { _id: id }
+      const options = { upsert: true }
+      const updatedDoc = {
+        $set: {
+          quantity: updatedQuantity,
+        },
+      }
+
+      const result = await productCollection.updateOne(
+        filter,
+        updatedDoc,
+        options,
+      )
+
+      res.send(result)
+    })
   } finally {
     console.log('db connect')
   }
