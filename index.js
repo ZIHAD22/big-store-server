@@ -63,6 +63,27 @@ const bigStoreServer = async () => {
 
       res.send(result)
     })
+
+    app.post('/inventory/:id', async (req, res) => {
+      const id = ObjectId(req.params.id)
+      const { currentQuantity, stockToAdd } = req.body
+      const finalQuantity = currentQuantity + stockToAdd
+      const filter = { _id: id }
+      const options = { upsert: true }
+      const updatedDoc = {
+        $set: {
+          quantity: finalQuantity,
+        },
+      }
+
+      const result = await productCollection.updateOne(
+        filter,
+        updatedDoc,
+        options,
+      )
+
+      res.send(result)
+    })
   } finally {
     console.log('db connect')
   }
