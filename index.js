@@ -1,5 +1,6 @@
 const express = require('express')
 const cors = require('cors')
+const { MongoClient, ServerApiVersion } = require('mongodb')
 const dotEnv = require('dotenv')
 
 // app
@@ -10,6 +11,35 @@ dotEnv.config()
 // middleware
 app.use(express.json())
 app.use(cors())
+
+// dataBase
+
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ydiek.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
+
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverApi: ServerApiVersion.v1,
+})
+
+const bigStoreServer = async () => {
+  try {
+    await client.connect()
+    const productCollection = client.db('inventory').collection('product')
+
+    app.get('/products-home', async (req, res) => {
+      const query = {}
+      const curser = productCollection.find(query)
+      const product = await curser.limit(6).toArray()
+
+      res.send(product)
+    })
+  } finally {
+    console.log('db connect')
+  }
+}
+
+bigStoreServer().catch(console.dir)
 
 // route
 app.get('/', (req, res) => {
