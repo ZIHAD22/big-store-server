@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require('cors')
-const { MongoClient, ServerApiVersion } = require('mongodb')
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
 const dotEnv = require('dotenv')
 
 // app
@@ -31,6 +31,14 @@ const bigStoreServer = async () => {
       const query = {}
       const curser = productCollection.find(query)
       const product = await curser.limit(6).toArray()
+
+      res.send(product)
+    })
+
+    app.get('/inventory/:id', async (req, res) => {
+      const id = ObjectId(req.params.id)
+      const query = { _id: id }
+      const product = await productCollection.findOne(query)
 
       res.send(product)
     })
