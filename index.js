@@ -36,6 +36,15 @@ const bigStoreServer = async () => {
       res.send(products)
     })
 
+    // delete one product
+    app.delete('/products/:id', async (req, res) => {
+      const _id = ObjectId(req.params.id)
+      const query = { _id }
+      const result = await productCollection.deleteOne(query)
+
+      res.send(result)
+    })
+
     // get short product for home page
     app.get('/products-home', async (req, res) => {
       const query = {}
