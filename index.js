@@ -36,6 +36,14 @@ const bigStoreServer = async () => {
       res.send(products)
     })
 
+    // add product on database
+    app.post('/products', async (req, res) => {
+      const productData = req.body
+      const result = await productCollection.insertOne(productData)
+
+      res.send(result)
+    })
+
     // delete one product
     app.delete('/products/:id', async (req, res) => {
       const _id = ObjectId(req.params.id)
