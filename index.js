@@ -12,24 +12,6 @@ dotEnv.config()
 // middleware
 app.use(express.json())
 app.use(cors())
-function verifyJwt(req, res, next) {
-  const authHeader = req.headers.authorization
-
-  if (!authHeader) {
-    return res.status(401).send({ message: 'UnAuthorized Access' })
-  }
-
-  const token = authHeader.split(' ')[1]
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(403).send({ message: 'Forbidden Access' })
-    }
-
-    // console.log('decoded', decoded)
-    req.decoded = decoded
-    next()
-  })
-}
 
 // dataBase
 
@@ -101,19 +83,12 @@ const bigStoreServer = async () => {
     })
 
     // find user items
-    app.get('/products/my-items', verifyJwt, async (req, res) => {
-      const decodedEmail = req.decoded?.email
-      const email = req.query.email
+    app.get('/products/my-items', async (req, res) => {
+      const query = { email }
+      const curser = productCollection.find(query)
+      const myItems = await curser.toArray()
 
-      if (email === decodedEmail) {
-        const query = { email }
-        const curser = productCollection.find(query)
-        const myItems = await curser.toArray()
-
-        res.send(myItems)
-      } else {
-        res.status(403).send({ message: 'Forbidden Access' })
-      }
+      res.send(myItems)
     })
 
     // update quantity of product
