@@ -29,16 +29,6 @@ const bigStoreServer = async () => {
     const productCollection = client.db('inventory').collection('product')
     const blogsCollection = client.db('inventory').collection('blogs')
 
-    // impelment jwt
-    app.post('/signIn', async (req, res) => {
-      const user = req.body
-      const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: '1d',
-      })
-
-      res.send(accessToken)
-    })
-
     // get all product
     app.get('/products', async (req, res) => {
       const query = {}
