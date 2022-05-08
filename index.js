@@ -84,6 +84,7 @@ const bigStoreServer = async () => {
 
     // find user items
     app.get('/products/my-items', async (req, res) => {
+      const email = req.query.email
       const query = { email }
       const curser = productCollection.find(query)
       const myItems = await curser.toArray()
