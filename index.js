@@ -1,5 +1,6 @@
 const express = require('express')
 const cors = require('cors')
+const jwt = require('jsonwebtoken')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
 const dotEnv = require('dotenv')
 
@@ -11,6 +12,24 @@ dotEnv.config()
 // middleware
 app.use(express.json())
 app.use(cors())
+function verifyJwt(req, res, next) {
+  const authHeader = req.headers.authorization
+
+  if (!authHeader) {
+    return res.status(401).send({ message: 'UnAuthorized Access' })
+  }
+
+  const token = authHeader.split(' ')[1]
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).send({ message: 'Forbidden Access' })
+    }
+
+    // console.log('decoded', decoded)
+    req.decoded = decoded
+    next()
+  })
+}
 
 // dataBase
 
@@ -27,6 +46,16 @@ const bigStoreServer = async () => {
     await client.connect()
     const productCollection = client.db('inventory').collection('product')
     const blogsCollection = client.db('inventory').collection('blogs')
+
+    // impelment jwt
+    app.post('/signIn', async (req, res) => {
+      const user = req.body
+      const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: '1d',
+      })
+
+      res.send(accessToken)
+    })
 
     // get all product
     app.get('/products', async (req, res) => {
@@ -72,13 +101,19 @@ const bigStoreServer = async () => {
     })
 
     // find user items
-    app.get('/products/my-items', async (req, res) => {
+    app.get('/products/my-items', verifyJwt, async (req, res) => {
+      const decodedEmail = req.decoded?.email
       const email = req.query.email
-      const query = { email }
-      const curser = productCollection.find(query)
-      const myItems = await curser.toArray()
 
-      res.send(myItems)
+      if (email === decodedEmail) {
+        const query = { email }
+        const curser = productCollection.find(query)
+        const myItems = await curser.toArray()
+
+        res.send(myItems)
+      } else {
+        res.status(403).send({ message: 'Forbidden Access' })
+      }
     })
 
     // update quantity of product
