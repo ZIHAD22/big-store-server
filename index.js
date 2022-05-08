@@ -27,6 +27,16 @@ const bigStoreServer = async () => {
     await client.connect()
     const productCollection = client.db('inventory').collection('product')
 
+    // get all product
+    app.get('/products', async (req, res) => {
+      const query = {}
+      const curser = productCollection.find(query)
+      const products = await curser.toArray()
+
+      res.send(products)
+    })
+
+    // get short product for home page
     app.get('/products-home', async (req, res) => {
       const query = {}
       const curser = productCollection.find(query)
