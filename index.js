@@ -70,6 +70,16 @@ const bigStoreServer = async () => {
       res.send(product)
     })
 
+    // find user items
+    app.get('/products/my-items', async (req, res) => {
+      const email = req.query.email
+      const query = { email }
+      const curser = productCollection.find(query)
+      const myItems = await curser.toArray()
+
+      res.send(myItems)
+    })
+
     // update quantity of product
     app.put('/inventory/:id', async (req, res) => {
       const id = ObjectId(req.params.id)
