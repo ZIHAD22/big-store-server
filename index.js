@@ -26,6 +26,7 @@ const bigStoreServer = async () => {
   try {
     await client.connect()
     const productCollection = client.db('inventory').collection('product')
+    const blogsCollection = client.db('inventory').collection('blogs')
 
     // get all product
     app.get('/products', async (req, res) => {
@@ -120,6 +121,15 @@ const bigStoreServer = async () => {
       )
 
       res.send(result)
+    })
+
+    // get blogs
+    app.get('/blogs', async (req, res) => {
+      const query = {}
+      const curser = blogsCollection.find(query)
+      const myItems = await curser.toArray()
+
+      res.send(myItems)
     })
   } finally {
     console.log('db connect')
