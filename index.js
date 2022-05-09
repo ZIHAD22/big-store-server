@@ -28,6 +28,7 @@ const bigStoreServer = async () => {
     await client.connect()
     const productCollection = client.db('inventory').collection('product')
     const blogsCollection = client.db('inventory').collection('blogs')
+    const reviewsCollection = client.db('inventory').collection('reviews')
 
     // get all product
     app.get('/products', async (req, res) => {
@@ -131,6 +132,15 @@ const bigStoreServer = async () => {
       const myItems = await curser.toArray()
 
       res.send(myItems)
+    })
+
+    // get review
+    app.get('/reviews', async (req, res) => {
+      const query = {}
+      const curser = reviewsCollection.find(query)
+      const reviews = await curser.toArray()
+
+      res.send(reviews)
     })
   } finally {
     console.log('db connect')
