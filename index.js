@@ -60,9 +60,14 @@ const bigStoreServer = async () => {
 
     // get all product
     app.get('/products', async (req, res) => {
+      const page = parseInt(req.query.page) || 0
+      const size = parseInt(req.query.size) || 2
       const query = {}
       const curser = productCollection.find(query)
-      const products = await curser.toArray()
+      const products = await curser
+        .skip(page * size)
+        .limit(size)
+        .toArray()
 
       res.send(products)
     })
@@ -106,9 +111,14 @@ const bigStoreServer = async () => {
       const decodedEmail = req.decoded.email
       const email = req.query.email
       if (email === decodedEmail) {
+        const page = parseInt(req.query.page) || 0
+        const size = parseInt(req.query.size) || 2
         const query = { email }
         const curser = productCollection.find(query)
-        const myItems = await curser.toArray()
+        const myItems = await curser
+          .skip(page * size)
+          .limit(size)
+          .toArray()
 
         res.send(myItems)
       } else {
@@ -156,6 +166,23 @@ const bigStoreServer = async () => {
       )
 
       res.send(result)
+    })
+
+    // get all product count
+    app.get('/productCount', async (req, res) => {
+      const query = {}
+      const count = await productCollection.estimatedDocumentCount()
+
+      res.send({ count })
+    })
+    app.get('/myProductCount', async (req, res) => {
+      const email = req.query.email
+      const query = { email }
+      const curser = productCollection.find(query)
+      const myProduct = await curser.toArray()
+      const count = myProduct.length
+
+      res.send({ count })
     })
 
     // get blogs
